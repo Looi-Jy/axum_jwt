@@ -10,7 +10,6 @@ mod database;
 mod model;
 mod password;
 
-
 use crate::auth::*;
 use crate::database::init_database;
 

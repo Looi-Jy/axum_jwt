@@ -19,11 +19,21 @@ mod response;
 pub async fn sign_up(State(pool): State<sqlx::PgPool>, Json(user): Json<User>) -> impl IntoResponse {
     let hash_pwd = hash_password(&user.password).unwrap();
     match create_user(&pool, &user.name, &user.email, &hash_pwd).await {
-        Ok(_) => {
-            Response::builder()
-            .status(StatusCode::CREATED)
-            .body(Body::from("User created successfully"))
-            .unwrap()
+        Ok(id) => {
+            match id {
+                Some(_) => {
+                    Response::builder()
+                    .status(StatusCode::CREATED)
+                    .body(Body::from("User created successfully"))
+                    .unwrap()
+                }
+                None => {
+                    Response::builder()
+                    .status(StatusCode::NOT_ACCEPTABLE)
+                    .body(Body::from("Failed to create user: User already exists!"))
+                    .unwrap()
+                }
+            }
         }
         Err(err) => {
             Response::builder()
